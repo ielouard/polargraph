@@ -32,7 +32,7 @@ class Command():
         '''
             Fonction de callback du subscriber au topic /range_data
         '''
-        rospy.loginfo("Range:%s mm", pose.range)
+        rospy.loginfo("Sensor: %s, Range:%s mm",pose.header.frame_id, pose.range)
 
 
 if __name__ == "__main__":
