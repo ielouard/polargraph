@@ -11,7 +11,7 @@
 
 import rospy, time
 from sensor_msgs.msg import Range
-from std_msgs.msg import String
+from std_msgs.msg import Float64MultiArray
 
 class Command():
     '''
@@ -23,13 +23,14 @@ class Command():
     previous_X=0
     previous_Y=0
     motor_pub=None
+    cmd_msg= Float64MultiArray()
     def __init__(self):
         '''
             Fonction d'initialisation du noeud
         '''
         rospy.init_node('command_node')
         rospy.Subscriber("/range_data", Range, self.command_callback)
-        self.motor_pub=rospy.Publisher("/motor_cmd", String)
+        self.motor_pub=rospy.Publisher("/motor_cmd", Float64MultiArray)
         rospy.spin()
 
 
@@ -41,17 +42,22 @@ class Command():
             if pose.header.frame_id=="Sensor1":
                 if pose.range > 150:
                     rospy.loginfo("up")
-                    self.motor_pub.publish("Up")
+                    self.cmd_msg.data=[-1.0,1.0]
+                    self.motor_pub.publish(self.cmd_msg)
                 elif pose.range < 150:
-                    self.motor_pub.publish("Down")
+                    self.cmd_msg.data=[1.0,-1.0]
+                    self.motor_pub.publish(self.cmd_msg)
+
                     rospy.loginfo("Down")
                 self.previous_Y=pose.range
             else:
                 if pose.range > 150 :
-                    self.motor_pub.publish("Left")
+                    self.cmd_msg.data=[1.0,1.0]
+                    self.motor_pub.publish(self.cmd_msg)
                     rospy.loginfo("Left")
                 elif pose.range < 150:
-                    self.motor_pub.publish("Right")
+                    self.cmd_msg.data=[-1.0,-1.0]
+                    self.motor_pub.publish(self.cmd_msg)
                     rospy.loginfo("Right")
                 self.previous_X=pose.range
 
